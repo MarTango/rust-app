@@ -1,7 +1,6 @@
-/// How the fk do i move this to a separate folder
+use async_std::sync::RwLock;
 use std::collections::HashMap;
 
-use async_std::sync::{Arc, Mutex};
 use serde_json::Value;
 use tide::http::{Error, StatusCode};
 
@@ -12,13 +11,13 @@ pub struct State {
     ///
     /// Someone please let me know if there's a way to do it without
     /// using Arc and Mutex.
-    collections: Arc<Mutex<HashMap<String, Vec<Value>>>>,
+    collections: RwLock<HashMap<String, Vec<Value>>>,
 }
 
 impl State {
     pub fn new() -> Self {
         State {
-            collections: Arc::new(Mutex::new(HashMap::new())),
+            collections: RwLock::new(HashMap::new()),
         }
     }
     /// Insert `payload` into the `typ` collection
@@ -29,7 +28,8 @@ impl State {
             _ => return Err(Error::from_str(StatusCode::BadRequest, "Bad payload")),
         };
 
-        let mut collections = self.collections.lock().await;
+        let mut collections = self.collections.write().await;
+
         if let Some(x) = collections.get_mut(typ) {
             x.push(payload);
         } else {
@@ -40,8 +40,7 @@ impl State {
 
     /// Get the `id`-th record from the `typ` collection
     pub async fn get(&self, typ: &String, id: usize) -> Option<Value> {
-        let collections = self.collections.lock().await;
-        if let Some(c) = collections.get(typ) {
+        if let Some(c) = self.collections.read().await.get(typ) {
             if let Some(v) = c.get(id) {
                 return Some(v.clone());
             }

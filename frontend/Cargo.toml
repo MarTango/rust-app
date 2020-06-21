@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 seed = "0.7.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]

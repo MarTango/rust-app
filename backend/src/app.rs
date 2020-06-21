@@ -10,6 +10,24 @@ pub fn app() -> tide::Server<()> {
     api.at("/:type/:id").get(get);
 
     let mut root = tide::new();
+    root.at("/").get(|_req| async {
+        let mut resp = Response::new(StatusCode::Ok);
+        resp.set_content_type(mime::HTML);
+        resp.set_body(Body::from_file("frontend/index.html").await.unwrap());
+
+        Ok(resp)
+    });
+    root.at("/dist/:file").get(|req: Request<()>| async move {
+        let fp: String = req.param("file")?;
+        let mut resp = Response::new(StatusCode::Ok);
+        resp.set_body(
+            Body::from_file(format!("frontend/dist/{}", fp))
+                .await
+                .unwrap(),
+        );
+
+        Ok(resp)
+    });
     root.at("/api").nest(api);
     root
 }

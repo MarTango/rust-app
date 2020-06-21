@@ -4,11 +4,14 @@ use tide::{Body, Request, Response};
 
 use crate::state::State;
 
-pub fn app() -> tide::Server<State> {
-    let mut app = tide::with_state(State::new());
-    app.at("/:type").post(post);
-    app.at("/:type/:id").get(get);
-    app
+pub fn app() -> tide::Server<()> {
+    let mut api = tide::with_state(State::new());
+    api.at("/:type").post(post);
+    api.at("/:type/:id").get(get);
+
+    let mut root = tide::new();
+    root.at("/api").nest(api);
+    root
 }
 
 /// Endpoint handler to fetch an entity

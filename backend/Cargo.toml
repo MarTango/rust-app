@@ -1,5 +1,5 @@
 [package]
-name = "rustwebapp"
+name = "backend"
 version = "0.1.0"
 authors = ["Martin Tang <martin.tang@oaknorth.ai>"]
 edition = "2018"

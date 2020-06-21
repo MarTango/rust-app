@@ -1,8 +1,7 @@
 use async_std;
 use std::env;
 
-mod app;
-mod state;
+use backend::app;
 
 #[async_std::main]
 pub async fn main() -> Result<(), std::io::Error> {

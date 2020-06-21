@@ -29,23 +29,14 @@ impl State {
         };
 
         let mut collections = self.collections.write().await;
-
-        if let Some(x) = collections.get_mut(typ) {
-            x.push(payload);
-        } else {
-            collections.insert(typ.clone(), vec![payload]);
-        }
+        let collection = collections.entry(typ.to_string()).or_insert(vec![]);
+        collection.push(payload);
         Ok(())
     }
 
     /// Get the `id`-th record from the `typ` collection
     pub async fn get(&self, typ: &String, id: usize) -> Option<Value> {
-        if let Some(c) = self.collections.read().await.get(typ) {
-            if let Some(v) = c.get(id) {
-                return Some(v.clone());
-            }
-        }
-        None
+        Some(self.collections.read().await.get(typ)?.get(id)?.clone())
     }
 }
 
